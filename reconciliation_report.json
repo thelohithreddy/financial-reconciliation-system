@@ -1,0 +1,196 @@
+{
+  "assumptions": {
+    "settlement_window_days": [
+      1,
+      2
+    ],
+    "rounding_tolerance": "0.01",
+    "duplicate_window_hours": 24,
+    "refund_must_match_original": true,
+    "currency": "USD",
+    "month_end_deadline_days": 5
+  },
+  "report": {
+    "summary": {
+      "period": "2024-01",
+      "generated_at": "2026-03-27T11:35:49Z",
+      "total_transactions": 25,
+      "total_settlements": 25,
+      "matched_transactions": 23,
+      "total_discrepancies": 7,
+      "total_txn_amount": "43029.29",
+      "total_settlement_amount": "42798.78",
+      "net_exposure": "230.51",
+      "discrepancy_breakdown": {
+        "DELAYED_SETTLEMENT": 1,
+        "CROSS_MONTH_SETTLEMENT": 1,
+        "AMOUNT_MISMATCH": 1,
+        "DUPLICATE_SETTLEMENT": 1,
+        "ORPHAN_REFUND": 1,
+        "MISSING_SETTLEMENT": 1,
+        "ORPHAN_SETTLEMENT": 1
+      }
+    },
+    "discrepancies": [
+      {
+        "type": "DELAYED_SETTLEMENT",
+        "txn_id": "TXN1021",
+        "detail": "Settlement arrived 3 days after transaction",
+        "txn_amount": null,
+        "settlement_amount": null,
+        "delta": null,
+        "txn_date": "2024-01-31",
+        "settlement_date": "2024-02-03"
+      },
+      {
+        "type": "CROSS_MONTH_SETTLEMENT",
+        "txn_id": "TXN1021",
+        "detail": "Transaction in 2024-01, settled in 2024-02",
+        "txn_amount": null,
+        "settlement_amount": null,
+        "delta": null,
+        "txn_date": "2024-01-31",
+        "settlement_date": "2024-02-03"
+      },
+      {
+        "type": "AMOUNT_MISMATCH",
+        "txn_id": "TXN1022",
+        "detail": "Rounding delta 0.01 within tolerance (INFO)",
+        "txn_amount": "999.99",
+        "settlement_amount": "999.98",
+        "delta": "0.01",
+        "txn_date": "2024-01-06",
+        "settlement_date": "2024-01-07"
+      },
+      {
+        "type": "DUPLICATE_SETTLEMENT",
+        "txn_id": "TXN1023",
+        "detail": "Found 2 settlements: ['STL2BEFFA91', 'STLA5CE2631']",
+        "txn_amount": "450.00",
+        "settlement_amount": null,
+        "delta": null,
+        "txn_date": "2024-01-11",
+        "settlement_date": null
+      },
+      {
+        "type": "ORPHAN_REFUND",
+        "txn_id": "TXN1024",
+        "detail": "Refund of -320.00 has no matching original PAYMENT",
+        "txn_amount": "-320.00",
+        "settlement_amount": null,
+        "delta": null,
+        "txn_date": "2024-01-09",
+        "settlement_date": null
+      },
+      {
+        "type": "MISSING_SETTLEMENT",
+        "txn_id": "TXN1025",
+        "detail": "No settlement found for transaction",
+        "txn_amount": "780.50",
+        "settlement_amount": null,
+        "delta": null,
+        "txn_date": "2024-01-16",
+        "settlement_date": null
+      },
+      {
+        "type": "ORPHAN_SETTLEMENT",
+        "txn_id": "TXN9999",
+        "detail": "Settlement STLFE1F6342 references unknown transaction",
+        "txn_amount": null,
+        "settlement_amount": "100.00",
+        "delta": null,
+        "txn_date": null,
+        "settlement_date": "2024-01-03"
+      }
+    ]
+  },
+  "test_results": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "results": [
+      {
+        "test": "TC-01: Missing settlement detected",
+        "status": "PASS",
+        "detail": "At least one transaction has no settlement"
+      },
+      {
+        "test": "TC-02: Duplicate settlement detected",
+        "status": "PASS",
+        "detail": "Duplicate settlement entries flagged"
+      },
+      {
+        "test": "TC-03: Amount mismatch detected",
+        "status": "PASS",
+        "detail": "Rounding discrepancy caught"
+      },
+      {
+        "test": "TC-04: Orphan refund detected",
+        "status": "PASS",
+        "detail": "Refund without original payment flagged"
+      },
+      {
+        "test": "TC-05: Cross-month settlement detected",
+        "status": "PASS",
+        "detail": "Settlement crossing month boundary flagged"
+      },
+      {
+        "test": "TC-06: Delayed settlement detected",
+        "status": "PASS",
+        "detail": "Settlement beyond 2-day window flagged"
+      },
+      {
+        "test": "TC-07: Orphan settlement detected",
+        "status": "PASS",
+        "detail": "Settlement referencing unknown transaction flagged"
+      },
+      {
+        "test": "TC-08: Rounding within tolerance is informational only",
+        "status": "PASS",
+        "detail": "Sub-cent rounding recorded as INFO"
+      },
+      {
+        "test": "TC-09: All transaction types accounted for",
+        "status": "PASS",
+        "detail": "No unknown transaction types"
+      },
+      {
+        "test": "TC-10: Duplicate settlement references same txn_id",
+        "status": "PASS",
+        "detail": "Duplicate record includes settlement IDs in detail"
+      }
+    ]
+  },
+  "limitations": [
+    {
+      "id": "L-01",
+      "title": "No Real-Time Streaming Support",
+      "description": "This system processes batch snapshots. In production, transactions and settlements arrive via streaming pipelines (Kafka, Kinesis). Batch reconciliation introduces latency and may miss real-time fraud signals or double-settlement events.",
+      "mitigation": "Integrate with a stream processing layer (e.g., Apache Flink) and run micro-batch reconciliation every 15 minutes."
+    },
+    {
+      "id": "L-02",
+      "title": "Single-Currency Assumption",
+      "description": "All amounts are assumed to be in USD. Multi-currency environments introduce FX conversion risks where rounding at the settlement layer may produce discrepancies that are legitimate but flagged as errors.",
+      "mitigation": "Store original currency and converted amount separately; apply currency-aware tolerance thresholds."
+    },
+    {
+      "id": "L-03",
+      "title": "Naive Duplicate Detection",
+      "description": "Duplicates are detected purely by txn_id collision on settlements. In real banking, duplicate settlements may arrive with distinct settlement IDs and slightly different timestamps, making them undetectable without probabilistic matching (fuzzy deduplication).",
+      "mitigation": "Implement similarity scoring on (txn_id, amount, date \u00b11 day) and flag near-duplicates for manual review."
+    },
+    {
+      "id": "L-04",
+      "title": "No Audit Trail or Immutability Guarantee",
+      "description": "Reconciliation results are written to flat files. There is no append-only audit log, cryptographic signing, or database versioning. In regulated environments (PCI-DSS, SOX), reconciliation records must be tamper-evident.",
+      "mitigation": "Persist results to an immutable store (e.g., AWS QLDB, append-only PostgreSQL table with row-level hashing)."
+    },
+    {
+      "id": "L-05",
+      "title": "Assumes Clean Input Schema",
+      "description": "The engine has no schema validation layer. Malformed records (nulls, wrong types, truncated IDs) will cause silent failures or incorrect matches in production data feeds.",
+      "mitigation": "Add a validation/sanitization layer using Pydantic or Great Expectations before data enters the engine."
+    }
+  ]
+}
