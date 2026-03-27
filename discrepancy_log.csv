@@ -1,0 +1,8 @@
+type,txn_id,detail,txn_amount,settlement_amount,delta,txn_date,settlement_date
+DELAYED_SETTLEMENT,TXN1021,Settlement arrived 3 days after transaction,,,,2024-01-31,2024-02-03
+CROSS_MONTH_SETTLEMENT,TXN1021,"Transaction in 2024-01, settled in 2024-02",,,,2024-01-31,2024-02-03
+AMOUNT_MISMATCH,TXN1022,Rounding delta 0.01 within tolerance (INFO),999.99,999.98,0.01,2024-01-06,2024-01-07
+DUPLICATE_SETTLEMENT,TXN1023,"Found 2 settlements: ['STL2BEFFA91', 'STLA5CE2631']",450.00,,,2024-01-11,
+ORPHAN_REFUND,TXN1024,Refund of -320.00 has no matching original PAYMENT,-320.00,,,2024-01-09,
+MISSING_SETTLEMENT,TXN1025,No settlement found for transaction,780.50,,,2024-01-16,
+ORPHAN_SETTLEMENT,TXN9999,Settlement STLFE1F6342 references unknown transaction,,100.00,,,2024-01-03
